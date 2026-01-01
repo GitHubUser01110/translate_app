@@ -498,7 +498,7 @@ class _TranslationPageState extends State<TranslationPage> with SingleTickerProv
           const SizedBox(height: 4),
           Text("仅截图翻译需要。部署教程请参考文档。", style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
           const SizedBox(height: 10),
-          _buildInput(_ocrUrlCtrl, "http://1.2.3.4:1234", "服务器地址 URL"),
+          _buildInput(_ocrUrlCtrl, "http://1.2.3.4:1234/ocr", "服务器地址 URL"),
           const SizedBox(height: 10),
           _buildInput(_ocrTokenCtrl, "API Token / 访问密码 (选填)", "Server Token"),
 
