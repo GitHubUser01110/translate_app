@@ -5,26 +5,22 @@ import 'config_service.dart';
 class DeepSeekService {
   String? _apiKey;
 
-  // 异步初始化，从配置中读取API Key
   Future<void> initialize() async {
     _apiKey = await ConfigService.getDeepSeekKey();
   }
 
-  // 设置API Key
   void setApiKey(String apiKey) {
     _apiKey = apiKey;
     ConfigService.saveDeepSeekKey(apiKey);
   }
 
-  // 检查是否有API Key
   bool hasApiKey() {
     return _apiKey != null && _apiKey!.isNotEmpty;
   }
 
   Future<String> translate(String text) async {
-    // 如果没有API Key，提示用户配置
     if (!hasApiKey()) {
-      return "请先在设置中配置 DeepSeek API Key\n(点击右上角设置图标)";
+      return "请先配置 DeepSeek API Key";
     }
 
     if (text.trim().isEmpty) return "";
@@ -41,12 +37,18 @@ class DeepSeekService {
           "messages": [
             {
               "role": "system",
-              "content": "你是一个专业的翻译助手。请将用户输入的文本翻译成中文。如果原文已经是中文，则翻译成英文。请保持翻译准确、通顺，不要添加任何解释、注释或额外内容。直接输出翻译结果。"
+              "content": 
+                "你是一位精通多国语言的资深翻译专家。请将用户输入的文本进行高质量翻译。\n"
+                "规则：\n"
+                "1. 自动检测原文语言。\n"
+                "2. 如果原文是中文，请翻译成英文；如果原文是英文或其他语言，请翻译成简体中文。\n"
+                "3. 翻译风格要求：信、达、雅。保持原文的语境、语气和逻辑，专业术语需准确翻译。\n"
+                "4. 严禁输出任何解释、注脚、拼音或无关的对话内容，仅直接输出最终的翻译结果。"
             },
             {"role": "user", "content": text}
           ],
-          "temperature": 0.7,
-          "max_tokens": 2000,
+          "temperature": 0.3, // 降低温度以获得更准确的翻译
+          "stream": false
         }),
       );
 
@@ -55,12 +57,12 @@ class DeepSeekService {
         final translatedText = data['choices'][0]['message']['content'];
         return translatedText.trim();
       } else if (response.statusCode == 401) {
-        return "API Key 无效，请检查并重新配置\n(点击右上角设置图标)";
+        return "API Key 无效或过期";
       } else {
-        return "翻译请求失败 (状态码: ${response.statusCode})";
+        return "翻译服务异常 (${response.statusCode})";
       }
     } catch (e) {
-      return "翻译出错: ${e.toString()}";
+      return "网络错误: $e";
     }
   }
 }
